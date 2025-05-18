@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python Intermediate Code Generator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/theme/monokai.min.css">
+    <style>
+        body {
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+        }
+        .code-editor {
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .CodeMirror {
+            height: 300px;
+            font-size: 14px;
+        }
+        .card {
+            margin-bottom: 20px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+        }
+        .btn-success {
+            background-color: #28a745;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .nav-tabs {
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mb-4 text-center">Python Intermediate Code Generator</h1>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>Python Code Input</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="code-editor">
+                            <textarea id="pythonCode" placeholder="Enter your Python code here...">
+def factorial(n):
+    if n <= 1:
+        return 1
+    else:
+        return n * factorial(n-1)
+
+result = factorial(5)
+print("Factorial of 5 is:", result)
+</textarea>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="optimizeCheckbox" checked>
+                            <label class="form-check-label" for="optimizeCheckbox">
+                                Apply optimization
+                            </label>
+                        </div>
+                        <button id="generateBtn" class="btn btn-primary">Generate Intermediate Code</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <div class="card results">
+                    <div class="card-header">
+                        <ul class="nav nav-tabs card-header-tabs" id="resultTabs" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="intermediate-tab" data-bs-toggle="tab" href="#intermediateCode" role="tab">Intermediate Code</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="optimized-tab" data-bs-toggle="tab" href="#optimizedCode" role="tab">Optimized Code</a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-body">
+                        <div class="tab-content">
+                            <div class="tab-pane fade show active" id="intermediateCode" role="tabpanel">
+                                <pre id="intermediateOutput">Generate intermediate code to see results...</pre>
+                            </div>
+                            <div class="tab-pane fade" id="optimizedCode" role="tabpanel">
+                                <pre id="optimizedOutput">Generate optimized code to see results...</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5>How It Works</h5>
+                    </div>
+                    <div class="card-body">
+                        <p>This tool converts Python code into intermediate code representation, which is closer to machine code but still human-readable.</p>
+                        <ol>
+                            <li><strong>Parsing</strong>: The Python code is parsed using Python's AST (Abstract Syntax Tree) module.</li>
+                            <li><strong>Generation</strong>: Each Python construct is converted into simpler intermediate code instructions.</li>
+                            <li><strong>Optimization</strong>: The intermediate code is optimized using techniques like constant folding and propagation.</li>
+                        </ol>
+                        <p>The generated code shows how a compiler might represent your Python code in a lower-level form before converting it to machine code.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.2/mode/python/python.min.js"></script>
+    <script>
+        // Initialize CodeMirror
+        var editor = CodeMirror.fromTextArea(document.getElementById("pythonCode"), {
+            mode: "python",
+            theme: "monokai",
+            lineNumbers: true,
+            indentUnit: 4,
+            lineWrapping: true
+        });
+        
+        // Handle generate button click
+        document.getElementById("generateBtn").addEventListener("click", async function() {
+            const pythonCode = editor.getValue();
+            const optimize = document.getElementById("optimizeCheckbox").checked;
+            
+            try {
+                // Clear previous results
+                document.getElementById("intermediateOutput").innerText = "Generating...";
+                document.getElementById("optimizedOutput").innerText = "Generating...";
+                
+                // Send the code to the server
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        code: pythonCode,
+                        optimize: optimize
+                    })
+                });
+                
+                const data = await response.json();
+                
+                // Display the results
+                if (data.intermediate_code) {
+                    document.getElementById("intermediateOutput").innerText = 
+                        data.intermediate_code.join('\n');
+                }
+                
+                if (data.optimized_code) {
+                    document.getElementById("optimizedOutput").innerText = 
+                        data.optimized_code.join('\n');
+                } else {
+                    document.getElementById("optimizedOutput").innerText = 
+                        "Optimization not applied";
+                }
+                
+                // Show the intermediate code tab
+                document.getElementById("intermediate-tab").click();
+                
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("intermediateOutput").innerText = 
+                    "Error: " + error.message;
+            }
+        });
+    </script>
+</body>
+</html> 

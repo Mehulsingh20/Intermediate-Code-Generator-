@@ -25,6 +25,34 @@ class CodeOptimizer:
         self._combine_consecutive_assignments()
         
         return self.code
+
+    def optimize_with_technique(self, intermediate_code, technique):
+        """
+        Apply a specific optimization technique to the intermediate code.
+        
+        Args:
+            intermediate_code (list): List of intermediate code instructions
+            technique (str): Name of the optimization technique to apply
+            
+        Returns:
+            list: Optimized intermediate code after applying the specific technique
+        """
+        self.code = intermediate_code.copy()
+        
+        # Apply the specified optimization technique
+        if technique == 'constant_folding':
+            self._constant_folding()
+        elif technique == 'constant_propagation':
+            self._constant_propagation()
+        elif technique == 'dead_code_elimination':
+            self._analyze_variable_usage()
+            self._dead_code_elimination()
+        elif technique == 'combine_assignments':
+            self._combine_consecutive_assignments()
+        elif technique == 'remove_comments':
+            self._remove_comments()
+        
+        return self.code
     
     def _remove_comments(self):
         """Remove comment lines from the code"""
